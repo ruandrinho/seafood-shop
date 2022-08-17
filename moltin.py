@@ -10,14 +10,14 @@ current_token = ''
 token_expiration_timestamp = 0
 
 
-def get_token():
+def get_token(moltin_client_id):
     global current_token, token_expiration_timestamp
     if current_token and time() < token_expiration_timestamp:
         return current_token
     moltin_oauth_response = requests.post(
         'https://api.moltin.com/oauth/access_token',
         data={
-            'client_id': os.getenv('MOLTIN_CLIENT_ID'),
+            'client_id': moltin_client_id,
             'grant_type': 'implicit'
         }
     )
@@ -28,8 +28,8 @@ def get_token():
     return current_token
 
 
-def get_all_products():
-    token = get_token()
+def get_all_products(moltin_client_id):
+    token = get_token(moltin_client_id)
     moltin_products_response = requests.get(
         'https://api.moltin.com/v2/products',
         headers={'Authorization': f'Bearer {token}'}
@@ -38,8 +38,8 @@ def get_all_products():
     return moltin_products_response.json()['data']
 
 
-def get_product(product_id):
-    token = get_token()
+def get_product(moltin_client_id, product_id):
+    token = get_token(moltin_client_id)
     moltin_products_response = requests.get(
         f'https://api.moltin.com/v2/products/{product_id}',
         headers={'Authorization': f'Bearer {token}'}
@@ -66,8 +66,8 @@ def get_product(product_id):
     return product
 
 
-def get_cart_data(telegram_user_id):
-    token = get_token()
+def get_cart_data(moltin_client_id, telegram_user_id):
+    token = get_token(moltin_client_id)
     moltin_carts_response = requests.get(
         f'https://api.moltin.com/v2/carts/{telegram_user_id}/items',
         headers={'Authorization': f'Bearer {token}'}
@@ -93,8 +93,8 @@ def get_cart_data(telegram_user_id):
     return (cart_products, total_cart_cost, dedent(summary))
 
 
-def add_product_to_cart(product_id, product_quantity, telegram_user_id):
-    token = get_token()
+def add_product_to_cart(moltin_client_id, product_id, product_quantity, telegram_user_id):
+    token = get_token(moltin_client_id)
     moltin_carts_response = requests.post(
         f'https://api.moltin.com/v2/carts/{telegram_user_id}/items',
         headers={'Authorization': f'Bearer {token}'},
@@ -109,8 +109,8 @@ def add_product_to_cart(product_id, product_quantity, telegram_user_id):
     moltin_carts_response.raise_for_status()
 
 
-def remove_product_from_cart(product_id, telegram_user_id):
-    token = get_token()
+def remove_product_from_cart(moltin_client_id, product_id, telegram_user_id):
+    token = get_token(moltin_client_id)
     moltin_carts_response = requests.delete(
         f'https://api.moltin.com/v2/carts/{telegram_user_id}/items/{product_id}',
         headers={'Authorization': f'Bearer {token}'}
@@ -118,8 +118,8 @@ def remove_product_from_cart(product_id, telegram_user_id):
     moltin_carts_response.raise_for_status()
 
 
-def save_customer(email, telegram_user):
-    token = get_token()
+def save_customer(moltin_client_id, email, telegram_user):
+    token = get_token(moltin_client_id)
     moltin_customers_response = requests.post(
         'https://api.moltin.com/v2/customers',
         headers={'Authorization': f'Bearer {token}'},
