@@ -99,7 +99,7 @@ async def show_cart(update, context):
     await query.answer()
     if (query.data != 'cart'):
         moltin.remove_product_from_cart(query.data, query.from_user.id)
-    cart_products, cart_cost, cart_summary = moltin.get_cart_products_cost_and_summary(query.from_user.id)
+    cart_products, cart_cost, cart_summary = moltin.get_cart_data(query.from_user.id)
     keyboard = []
     keyboard.append([InlineKeyboardButton('Оплатить', callback_data='pay')])
     for product in cart_products:

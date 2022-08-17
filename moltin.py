@@ -55,7 +55,7 @@ def get_product(product_id):
     return product
 
 
-def get_cart_products_cost_and_summary(telegram_user_id):
+def get_cart_data(telegram_user_id):
     token = get_token()
     moltin_carts_response = requests.get(
         f'https://api.moltin.com/v2/carts/{telegram_user_id}/items',
