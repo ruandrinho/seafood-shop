@@ -82,12 +82,14 @@ async def show_product(update, context):
         InlineKeyboardButton('Корзина', callback_data='cart'),
         InlineKeyboardButton('Назад', callback_data='back')
     ])
-    message = f'''{product["name"]}
+    message = f'''\
+        {product["name"]}
 
-                  {product["price"]} per kg
-                  {product["stock"]}kg on stock
+        {product["price"]} per kg
+        {product["stock"]}kg on stock
 
-                  {product["description"]}'''
+        {product["description"]}
+        '''
     await query.message.reply_photo(
         photo=product['image_url'],
         caption=dedent(message),

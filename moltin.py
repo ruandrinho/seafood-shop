@@ -2,11 +2,18 @@ import requests
 import os
 import logging
 from textwrap import dedent
+from time import time
 
 logger = logging.getLogger(__name__)
 
+current_token = ''
+token_expiration_timestamp = 0
+
 
 def get_token():
+    global current_token, token_expiration_timestamp
+    if current_token and time() < token_expiration_timestamp:
+        return current_token
     moltin_oauth_response = requests.post(
         'https://api.moltin.com/oauth/access_token',
         data={
@@ -15,7 +22,10 @@ def get_token():
         }
     )
     moltin_oauth_response.raise_for_status()
-    return moltin_oauth_response.json()['access_token']
+    moltin_oauth_info = moltin_oauth_response.json()
+    current_token = moltin_oauth_info['access_token']
+    token_expiration_timestamp = moltin_oauth_info['expires']
+    return current_token
 
 
 def get_all_products():
@@ -73,12 +83,12 @@ def get_cart_data(telegram_user_id):
             'quantity': product['quantity'],
             'total_cost': f'${product["value"]["amount"] / 100}'
         }
-        summary += f'''{product["name"]}
-                       {product["description"]}
-                       {product["price"]} per kg
-                       {product["quantity"]}kg in cart for {product["total_cost"]}
-
-                    '''
+        summary += f'''\
+            {product["name"]}
+            {product["description"]}
+            {product["price"]} per kg
+            {product["quantity"]}kg in cart for {product["total_cost"]}
+            \n'''
     total_cart_cost = moltin_carts_response.json()['meta']['display_price']['with_tax']['formatted']
     return (cart_products, total_cart_cost, dedent(summary))
 
