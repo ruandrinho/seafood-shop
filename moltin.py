@@ -1,6 +1,7 @@
 import requests
 import os
 import logging
+from textwrap import dedent
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +73,14 @@ def get_cart_data(telegram_user_id):
             'quantity': product['quantity'],
             'total_cost': f'${product["value"]["amount"] / 100}'
         }
-        summary += f'{product["name"]}\n'\
-                   f'{product["description"]}\n'\
-                   f'{product["price"]} per kg\n'\
-                   f'{product["quantity"]}kg in cart for {product["total_cost"]}\n\n'
+        summary += f'''{product["name"]}
+                       {product["description"]}
+                       {product["price"]} per kg
+                       {product["quantity"]}kg in cart for {product["total_cost"]}
+
+                    '''
     total_cart_cost = moltin_carts_response.json()['meta']['display_price']['with_tax']['formatted']
-    return (cart_products, total_cart_cost, summary)
+    return (cart_products, total_cart_cost, dedent(summary))
 
 
 def add_product_to_cart(product_id, product_quantity, telegram_user_id):

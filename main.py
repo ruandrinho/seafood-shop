@@ -3,6 +3,7 @@ import os
 import requests
 import moltin
 from dotenv import load_dotenv
+from textwrap import dedent
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -81,13 +82,15 @@ async def show_product(update, context):
         InlineKeyboardButton('Корзина', callback_data='cart'),
         InlineKeyboardButton('Назад', callback_data='back')
     ])
-    message = f'{product["name"]}\n\n'\
-              f'{product["price"]} per kg\n'\
-              f'{product["stock"]}kg on stock\n\n'\
-              f'{product["description"]}'
+    message = f'''{product["name"]}
+
+                  {product["price"]} per kg
+                  {product["stock"]}kg on stock
+
+                  {product["description"]}'''
     await query.message.reply_photo(
         photo=product['image_url'],
-        caption=message,
+        caption=dedent(message),
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
     await query.message.delete()
