@@ -102,7 +102,7 @@ async def show_product(update, context):
 async def show_cart(update, context):
     query = update.callback_query
     await query.answer()
-    if (query.data != 'cart'):
+    if query.data != 'cart':
         moltin.remove_product_from_cart(query.data, query.from_user.id)
     cart_products, cart_cost, cart_summary = moltin.get_cart_data(query.from_user.id)
     keyboard = []
