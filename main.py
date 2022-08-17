@@ -4,6 +4,7 @@ import requests
 import moltin
 from dotenv import load_dotenv
 from textwrap import dedent
+from contextlib import suppress
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -21,6 +22,7 @@ START, HANDLE_MENU, HANDLE_PRODUCT, HANDLE_CART, AWAIT_EMAIL = range(5)
 
 
 async def start(update, context):
+    # logger.info(context.bot_data['moltin_client_id'])
     keyboard = []
     for product in moltin.get_all_products():
         keyboard.append([InlineKeyboardButton(product['name'], callback_data=product['id'])])
@@ -51,10 +53,8 @@ async def show_menu_after_product(update, context):
     query = update.callback_query
     await query.answer()
     cart_product_id, cart_product_quantity = query.data.split('=')
-    try:
+    with suppress(requests.exceptions.HTTPError):
         moltin.add_product_to_cart(cart_product_id, int(cart_product_quantity), query.from_user.id)
-    except requests.exceptions.HTTPError:
-        pass
     keyboard = []
     for product in moltin.get_all_products():
         keyboard.append([InlineKeyboardButton(product['name'], callback_data=product['id'])])
@@ -181,6 +181,7 @@ def main():
         persistent=True
     )
 
+    # application.bot_data['moltin_client_id'] = os.getenv('MOLTIN_CLIENT_ID')
     application.add_handler(conv_handler)
     application.run_polling()
 
